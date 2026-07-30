@@ -118,7 +118,6 @@ async function carregarPerfil() {
     if (!userSnap.exists()) return;
     let dados = userSnap.data();
 
-    // Lógica para zerar a tela caso tenha virado o dia
     if (dados.ultimaAtualizacao !== getTodayDate()) {
         dados.totalHoje = 0;
         dados.historico = [];
@@ -137,7 +136,6 @@ async function carregarPerfil() {
     const historyUl = document.getElementById('water-history');
     historyUl.innerHTML = '';
     
-    // Inverte a ordem do array para exibir a água mais recente no topo
     const historicoReverso = [...dados.historico].reverse();
     historicoReverso.forEach(entry => {
         historyUl.innerHTML += `<li>💧 ${entry.amount}ml às ${entry.time}</li>`;
@@ -154,7 +152,6 @@ window.addWater = async function(amount) {
     let novoTotal = dados.totalHoje;
     let novoHistorico = dados.historico || [];
 
-    // Se o último update não for de hoje, zera tudo antes de somar
     if (dados.ultimaAtualizacao !== getTodayDate()) {
         novoTotal = 0;
         novoHistorico = [];
@@ -190,13 +187,12 @@ function carregarDashboard() {
             let percentage = (totalExibido / dados.goal) * 100;
 
             rankingArray.push({
-                nome: dados.nome, // Usamos o nome capturado pelo Gmail aqui
+                nome: dados.nome, 
                 total: totalExibido,
                 percentage: percentage
             });
         });
 
-        // Ordena por maior % atingida
         rankingArray.sort((a, b) => b.percentage - a.percentage);
         
         rankingArray.forEach(user => {
