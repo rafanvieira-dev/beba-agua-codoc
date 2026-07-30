@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Hidratação</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>💧 H2O Tracker</h1>
+        <nav id="menu" class="hidden">
+            <button onclick="window.showScreen('dashboard-screen')">Ranking Geral</button>
+            <button onclick="window.showScreen('profile-screen')">Meu Perfil</button>
+            <button onclick="window.logout()">Sair</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Tela de Autenticação / Cadastro -->
+        <section id="auth-screen">
+            <div class="card">
+                <h2>Entrar ou Cadastrar</h2>
+                <input type="text" id="username" placeholder="Seu Nome">
+                
+                <div id="register-fields" class="hidden">
+                    <input type="number" id="age" placeholder="Idade">
+                    <input type="number" id="weight" placeholder="Peso (kg)">
+                    <input type="number" id="height" placeholder="Altura (cm)">
+                </div>
+
+                <button onclick="window.loginOrRegister()" id="action-btn">Entrar</button>
+                <p class="toggle-link" onclick="window.toggleRegister()">Não tem conta? Cadastre-se</p>
+            </div>
+        </section>
+
+        <!-- Tela do Dashboard (Ranking Público em Tempo Real) -->
+        <section id="dashboard-screen" class="hidden">
+            <h2>Progresso Diário da Galera</h2>
+            <p class="subtitle">Atualizado em tempo real</p>
+            <div id="ranking-list" class="ranking-container">
+                <!-- Preenchido via JS com dados do Firebase -->
+            </div>
+        </section>
+
+        <!-- Tela de Perfil Pessoal -->
+        <section id="profile-screen" class="hidden">
+            <h2>Meu Painel</h2>
+            <div class="card profile-card">
+                <h3 id="user-greeting">Olá!</h3>
+                <p>Sua meta diária: <strong id="user-goal">0</strong> ml</p>
+                <p>Você já bebeu: <strong id="user-current">0</strong> ml</p>
+                
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <p id="progress-text">0%</p>
+
+                <div class="water-actions">
+                    <h3>Adicionar Água Agora:</h3>
+                    <div class="water-buttons">
+                        <button onclick="window.addWater(200)">200 ml</button>
+                        <button onclick="window.addWater(300)">300 ml</button>
+                        <button onclick="window.addWater(500)">500 ml</button>
+                        <button onclick="window.addWater(1000)">1 Litro</button>
+                    </div>
+                </div>
+
+                <div class="history">
+                    <h3>Histórico de Hoje</h3>
+                    <ul id="water-history">
+                        <!-- Preenchido via JS -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
