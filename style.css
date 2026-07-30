@@ -79,11 +79,12 @@ button:hover {
     background-color: #0096c7;
 }
 
-.toggle-link {
-    margin-top: 15px;
-    color: #0077b6;
-    cursor: pointer;
-    font-size: 0.9em;
+.google-btn {
+    background-color: #db4437;
+}
+
+.google-btn:hover {
+    background-color: #c53929;
 }
 
 .subtitle {
