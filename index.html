@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor de Hidratação</title>
+    <title>Monitor de Hidratação - CODOC</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,18 +19,22 @@
     <main>
         <!-- Tela de Autenticação / Cadastro -->
         <section id="auth-screen">
-            <div class="card">
-                <h2>Entrar ou Cadastrar</h2>
-                <input type="text" id="username" placeholder="Seu Nome">
-                
-                <div id="register-fields" class="hidden">
-                    <input type="number" id="age" placeholder="Idade">
-                    <input type="number" id="weight" placeholder="Peso (kg)">
-                    <input type="number" id="height" placeholder="Altura (cm)">
-                </div>
-
-                <button onclick="window.loginOrRegister()" id="action-btn">Entrar</button>
-                <p class="toggle-link" onclick="window.toggleRegister()">Não tem conta? Cadastre-se</p>
+            <!-- Botão do Google -->
+            <div class="card" id="login-card">
+                <h2>Acesse sua conta</h2>
+                <button onclick="window.loginComGoogle()" class="google-btn">
+                    📧 Entrar com o Google
+                </button>
+            </div>
+            
+            <!-- Completar dados (Só aparece na primeira vez) -->
+            <div class="card hidden" id="complete-register-card">
+                <h2>Completar Cadastro</h2>
+                <p id="welcome-name"></p>
+                <input type="number" id="age" placeholder="Idade">
+                <input type="number" id="weight" placeholder="Peso (kg)">
+                <input type="number" id="height" placeholder="Altura (cm)">
+                <button onclick="window.salvarDadosGoogle()">Salvar e Começar</button>
             </div>
         </section>
 
