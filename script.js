@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDdoRkqJQ0Qvp-UXQrcWTru7BBgGL93TV0",
@@ -15,10 +16,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-let isRegistering = false;
-let currentUser = null;
-let unsubDashboard = null; // Para guardar a referência do listener em tempo real
+let currentUser = null; 
+let unsubDashboard = null; 
 
 const getTodayDate = () => {
     const today = new Date();
@@ -26,60 +28,76 @@ const getTodayDate = () => {
     return today.toISOString().split('T')[0];
 };
 
-window.toggleRegister = function() {
-    isRegistering = !isRegistering;
-    document.getElementById('register-fields').classList.toggle('hidden');
-    document.getElementById('action-btn').innerText = isRegistering ? 'Cadastrar' : 'Entrar';
-    document.querySelector('.toggle-link').innerText = isRegistering ? 'Já tem conta? Entre aqui' : 'Não tem conta? Cadastre-se';
+window.loginComGoogle = async function() {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        const userRef = doc(db, "usuarios", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            currentUser = user.uid;
+            document.getElementById('menu').classList.remove('hidden');
+            window.showScreen('profile-screen');
+        } else {
+            document.getElementById('login-card').classList.add('hidden');
+            document.getElementById('complete-register-card').classList.remove('hidden');
+            document.getElementById('welcome-name').innerText = `Bem-vindo, ${user.displayName}! Precisamos de mais alguns dados.`;
+        }
+    } catch (error) {
+        console.error("Erro ao fazer login com Google: ", error);
+        alert("Falha ao fazer login com o Google.");
+    }
 };
 
-window.loginOrRegister = async function() {
-    const username = document.getElementById('username').value.trim();
-    if (!username) return alert('Digite um nome!');
+window.salvarDadosGoogle = async function() {
+    const user = auth.currentUser;
+    if (!user) return alert('Faça login primeiro!');
 
-    const userRef = doc(db, "usuarios", username);
-    const userSnap = await getDoc(userRef);
+    const weight = document.getElementById('weight').value;
+    const height = document.getElementById('height').value;
+    const age = document.getElementById('age').value;
 
-    if (isRegistering) {
-        if (userSnap.exists()) return alert('Usuário já existe. Faça login!');
+    if (!weight || !height || !age) return alert('Preencha todos os campos!');
 
-        const weight = document.getElementById('weight').value;
-        const height = document.getElementById('height').value;
-        const age = document.getElementById('age').value;
+    const goal = Math.round(weight * 35);
+    const userRef = doc(db, "usuarios", user.uid);
 
-        if (!weight || !height || !age) return alert('Preencha todos os campos!');
+    await setDoc(userRef, {
+        nome: user.displayName, 
+        foto: user.photoURL,
+        weight: weight,
+        height: height,
+        age: age,
+        goal: goal,
+        totalHoje: 0,
+        historico: [],
+        ultimaAtualizacao: getTodayDate()
+    });
 
-        const goal = Math.round(weight * 35);
-
-        await setDoc(userRef, {
-            weight: weight,
-            height: height,
-            age: age,
-            goal: goal,
-            totalHoje: 0,
-            historico: [],
-            ultimaAtualizacao: getTodayDate()
-        });
-        alert('Cadastro realizado com sucesso!');
-    } else {
-        if (!userSnap.exists()) return alert('Usuário não encontrado!');
-    }
-
-    currentUser = username;
+    currentUser = user.uid;
     document.getElementById('menu').classList.remove('hidden');
     window.showScreen('profile-screen');
 };
 
-window.logout = function() {
-    currentUser = null;
-    document.getElementById('menu').classList.add('hidden');
-    document.getElementById('username').value = '';
-    
-    if(unsubDashboard) {
-        unsubDashboard(); // Para de ouvir o banco ao deslogar
+window.logout = async function() {
+    try {
+        await signOut(auth);
+        currentUser = null;
+        document.getElementById('menu').classList.add('hidden');
+        
+        document.getElementById('login-card').classList.remove('hidden');
+        document.getElementById('complete-register-card').classList.add('hidden');
+        
+        if(unsubDashboard) {
+            unsubDashboard(); 
+        }
+        
+        window.showScreen('auth-screen');
+    } catch (error) {
+        console.error("Erro ao sair: ", error);
     }
-    
-    window.showScreen('auth-screen');
 };
 
 window.showScreen = function(screenId) {
@@ -100,13 +118,13 @@ async function carregarPerfil() {
     if (!userSnap.exists()) return;
     let dados = userSnap.data();
 
-    // Se virou o dia, zera o progresso localmente para a exibição
+    // Lógica para zerar a tela caso tenha virado o dia
     if (dados.ultimaAtualizacao !== getTodayDate()) {
         dados.totalHoje = 0;
         dados.historico = [];
     }
 
-    document.getElementById('user-greeting').innerText = `Olá, ${currentUser}!`;
+    document.getElementById('user-greeting').innerText = `Olá, ${dados.nome}!`;
     document.getElementById('user-goal').innerText = dados.goal;
     document.getElementById('user-current').innerText = dados.totalHoje;
 
@@ -119,7 +137,7 @@ async function carregarPerfil() {
     const historyUl = document.getElementById('water-history');
     historyUl.innerHTML = '';
     
-    // Inverte a ordem do histórico para o mais recente ficar no topo
+    // Inverte a ordem do array para exibir a água mais recente no topo
     const historicoReverso = [...dados.historico].reverse();
     historicoReverso.forEach(entry => {
         historyUl.innerHTML += `<li>💧 ${entry.amount}ml às ${entry.time}</li>`;
@@ -136,7 +154,7 @@ window.addWater = async function(amount) {
     let novoTotal = dados.totalHoje;
     let novoHistorico = dados.historico || [];
 
-    // Lógica para zerar se virou o dia
+    // Se o último update não for de hoje, zera tudo antes de somar
     if (dados.ultimaAtualizacao !== getTodayDate()) {
         novoTotal = 0;
         novoHistorico = [];
@@ -160,7 +178,6 @@ window.addWater = async function(amount) {
 function carregarDashboard() {
     const usuariosRef = collection(db, "usuarios");
     
-    // onSnapshot cria a conexão em tempo real com o banco
     unsubDashboard = onSnapshot(usuariosRef, (snapshot) => {
         const rankingList = document.getElementById('ranking-list');
         rankingList.innerHTML = '';
@@ -169,18 +186,17 @@ function carregarDashboard() {
         snapshot.forEach((docSnap) => {
             let dados = docSnap.data();
             
-            // Só mostra a água bebida se for o dia de hoje
             let totalExibido = dados.ultimaAtualizacao === getTodayDate() ? dados.totalHoje : 0;
             let percentage = (totalExibido / dados.goal) * 100;
 
             rankingArray.push({
-                name: docSnap.id,
+                nome: dados.nome, // Usamos o nome capturado pelo Gmail aqui
                 total: totalExibido,
                 percentage: percentage
             });
         });
 
-        // Ordena do maior para o menor %
+        // Ordena por maior % atingida
         rankingArray.sort((a, b) => b.percentage - a.percentage);
         
         rankingArray.forEach(user => {
@@ -191,7 +207,7 @@ function carregarDashboard() {
             rankingList.innerHTML += `
                 <div class="ranking-item ${goalReached}">
                     <div>
-                        <strong>${user.name}</strong><br>
+                        <strong>${user.nome}</strong><br>
                         <small>${percArredondado}% da meta</small>
                     </div>
                     <div>
