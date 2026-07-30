@@ -133,11 +133,30 @@ button:hover {
     border-top: 1px solid #eee;
 }
 
-.water-buttons {
+/* Nova grade para muitos botões */
+.water-buttons-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.water-buttons-grid button {
+    background-color: #00b4d8;
+    color: white;
+    border: none;
+    padding: 10px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 0;
+    transition: background-color 0.2s;
+}
+
+.water-buttons-grid button:hover {
+    background-color: #0096c7;
 }
 
 .history {
