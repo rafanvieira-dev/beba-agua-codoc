@@ -142,8 +142,25 @@ async function carregarPerfil() {
     });
 }
 
+// Função nova para pegar o valor do select e adicionar a água
+window.addSelectedWater = function() {
+    const select = document.getElementById('water-amount');
+    const amount = parseInt(select.value);
+    
+    if (amount > 0) {
+        window.addWater(amount);
+    }
+};
+
 window.addWater = async function(amount) {
     if (!currentUser) return;
+
+    // Desativa o botão temporariamente para evitar cliques duplos rápidos
+    const btn = document.querySelector('.add-btn');
+    if(btn) {
+        btn.disabled = true;
+        btn.innerText = "Registrando...";
+    }
 
     const userRef = doc(db, "usuarios", currentUser);
     const userSnap = await getDoc(userRef);
@@ -170,6 +187,11 @@ window.addWater = async function(amount) {
     });
 
     carregarPerfil();
+
+    if(btn) {
+        btn.disabled = false;
+        btn.innerText = "Registrar Água 💧";
+    }
 };
 
 function carregarDashboard() {
