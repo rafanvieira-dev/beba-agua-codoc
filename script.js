@@ -73,6 +73,7 @@ window.salvarDadosGoogle = async function() {
         goal: goal,
         totalHoje: 0,
         historico: [],
+        dias: {}, // Inicia o histórico de dias zerado
         ultimaAtualizacao: getTodayDate()
     });
 
@@ -108,7 +109,11 @@ window.showScreen = function(screenId) {
     document.getElementById(screenId).classList.remove('hidden');
 
     if (screenId === 'profile-screen' && currentUser) carregarPerfil();
-    if (screenId === 'dashboard-screen') carregarDashboard();
+    if (screenId === 'dashboard-screen') {
+        // Quando abrir o dashboard, o calendário vem com a data de hoje
+        document.getElementById('ranking-date').value = getTodayDate();
+        carregarDashboard();
+    }
 };
 
 async function carregarPerfil() {
@@ -142,7 +147,6 @@ async function carregarPerfil() {
     });
 }
 
-// Função nova para pegar o valor do select e adicionar a água
 window.addSelectedWater = function() {
     const select = document.getElementById('water-amount');
     const amount = parseInt(select.value);
@@ -155,7 +159,6 @@ window.addSelectedWater = function() {
 window.addWater = async function(amount) {
     if (!currentUser) return;
 
-    // Desativa o botão temporariamente para evitar cliques duplos rápidos
     const btn = document.querySelector('.add-btn');
     if(btn) {
         btn.disabled = true;
@@ -168,6 +171,7 @@ window.addWater = async function(amount) {
     
     let novoTotal = dados.totalHoje;
     let novoHistorico = dados.historico || [];
+    let dias = dados.dias || {}; // Carrega o histórico de dias
 
     if (dados.ultimaAtualizacao !== getTodayDate()) {
         novoTotal = 0;
@@ -176,6 +180,9 @@ window.addWater = async function(amount) {
 
     novoTotal += amount;
     
+    // Salva o total atual no registro do dia de hoje
+    dias[getTodayDate()] = novoTotal;
+    
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     novoHistorico.push({ amount: amount, time: timeString });
@@ -183,6 +190,7 @@ window.addWater = async function(amount) {
     await updateDoc(userRef, {
         totalHoje: novoTotal,
         historico: novoHistorico,
+        dias: dias,
         ultimaAtualizacao: getTodayDate()
     });
 
@@ -194,8 +202,16 @@ window.addWater = async function(amount) {
     }
 };
 
+// Nova função acionada sempre que a data no calendário muda
+window.mudarDataRanking = function() {
+    carregarDashboard();
+};
+
 function carregarDashboard() {
+    const dataSelecionada = document.getElementById('ranking-date').value || getTodayDate();
     const usuariosRef = collection(db, "usuarios");
+    
+    if (unsubDashboard) unsubDashboard(); // Limpa o ouvinte anterior
     
     unsubDashboard = onSnapshot(usuariosRef, (snapshot) => {
         const rankingList = document.getElementById('ranking-list');
@@ -204,8 +220,18 @@ function carregarDashboard() {
 
         snapshot.forEach((docSnap) => {
             let dados = docSnap.data();
+            let totalExibido = 0;
             
-            let totalExibido = dados.ultimaAtualizacao === getTodayDate() ? dados.totalHoje : 0;
+            // Verifica se a data selecionada é hoje
+            if (dataSelecionada === getTodayDate()) {
+                totalExibido = dados.ultimaAtualizacao === getTodayDate() ? dados.totalHoje : 0;
+            } else {
+                // Se for outro dia, busca no histórico de dias
+                if (dados.dias && dados.dias[dataSelecionada]) {
+                    totalExibido = dados.dias[dataSelecionada];
+                }
+            }
+
             let percentage = (totalExibido / dados.goal) * 100;
 
             rankingArray.push({
