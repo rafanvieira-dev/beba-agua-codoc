@@ -21,6 +21,7 @@ const provider = new GoogleAuthProvider();
 
 let currentUser = null; 
 let unsubDashboard = null; 
+let dadosGlobais = []; // Variável para armazenar o banco e não precisar baixar de novo ao mudar a data
 
 const getTodayDate = () => {
     const today = new Date();
@@ -73,7 +74,7 @@ window.salvarDadosGoogle = async function() {
         goal: goal,
         totalHoje: 0,
         historico: [],
-        dias: {}, // Inicia o histórico de dias zerado
+        dias: {}, 
         ultimaAtualizacao: getTodayDate()
     });
 
@@ -110,7 +111,6 @@ window.showScreen = function(screenId) {
 
     if (screenId === 'profile-screen' && currentUser) carregarPerfil();
     if (screenId === 'dashboard-screen') {
-        // Quando abrir o dashboard, o calendário vem com a data de hoje
         document.getElementById('ranking-date').value = getTodayDate();
         carregarDashboard();
     }
@@ -171,7 +171,7 @@ window.addWater = async function(amount) {
     
     let novoTotal = dados.totalHoje;
     let novoHistorico = dados.historico || [];
-    let dias = dados.dias || {}; // Carrega o histórico de dias
+    let dias = dados.dias || {};
 
     if (dados.ultimaAtualizacao !== getTodayDate()) {
         novoTotal = 0;
@@ -180,7 +180,7 @@ window.addWater = async function(amount) {
 
     novoTotal += amount;
     
-    // Salva o total atual no registro do dia de hoje
+    // Grava o valor no dia de hoje para o histórico não se perder
     dias[getTodayDate()] = novoTotal;
     
     const now = new Date();
@@ -202,63 +202,84 @@ window.addWater = async function(amount) {
     }
 };
 
-// Nova função acionada sempre que a data no calendário muda
+// Esta função agora desenha a tela filtrando os dados guardados na memória
+window.renderizarRanking = function() {
+    const dataSelecionada = document.getElementById('ranking-date').value || getTodayDate();
+    const hoje = getTodayDate();
+    const subtitle = document.getElementById('dashboard-subtitle');
+    
+    if (dataSelecionada === hoje) {
+        subtitle.innerText = "Atualizado em tempo real";
+    } else {
+        const partes = dataSelecionada.split('-'); // Quebra YYYY-MM-DD
+        if (partes.length === 3) {
+            subtitle.innerText = `Histórico do dia ${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+    }
+    
+    const rankingList = document.getElementById('ranking-list');
+    rankingList.innerHTML = '';
+    let rankingArray = [];
+
+    dadosGlobais.forEach((dados) => {
+        let totalExibido = 0;
+        
+        if (dataSelecionada === hoje) {
+            totalExibido = dados.ultimaAtualizacao === hoje ? dados.totalHoje : 0;
+        } else {
+            if (dados.dias && dados.dias[dataSelecionada] !== undefined) {
+                totalExibido = dados.dias[dataSelecionada];
+            } else {
+                totalExibido = 0; // Se não tem registro antigo, força zero!
+            }
+        }
+
+        let percentage = (dados.goal > 0) ? (totalExibido / dados.goal) * 100 : 0;
+
+        rankingArray.push({
+            nome: dados.nome || "Usuário", 
+            total: totalExibido,
+            percentage: percentage
+        });
+    });
+
+    rankingArray.sort((a, b) => b.percentage - a.percentage);
+    
+    rankingArray.forEach(user => {
+        const percArredondado = Math.min(Math.round(user.percentage), 100);
+        const goalReached = user.percentage >= 100 ? 'goal-reached' : '';
+        const statusIcon = user.percentage >= 100 ? '🏆' : '💧';
+        
+        rankingList.innerHTML += `
+            <div class="ranking-item ${goalReached}">
+                <div>
+                    <strong>${user.nome}</strong><br>
+                    <small>${percArredondado}% da meta</small>
+                </div>
+                <div>
+                    ${user.total} ml ${statusIcon}
+                </div>
+            </div>
+        `;
+    });
+};
+
+// Acionado instantaneamente pelo clique no calendário
 window.mudarDataRanking = function() {
-    carregarDashboard();
+    window.renderizarRanking();
 };
 
 function carregarDashboard() {
-    const dataSelecionada = document.getElementById('ranking-date').value || getTodayDate();
     const usuariosRef = collection(db, "usuarios");
     
-    if (unsubDashboard) unsubDashboard(); // Limpa o ouvinte anterior
+    if (unsubDashboard) unsubDashboard(); 
     
     unsubDashboard = onSnapshot(usuariosRef, (snapshot) => {
-        const rankingList = document.getElementById('ranking-list');
-        rankingList.innerHTML = '';
-        let rankingArray = [];
-
+        dadosGlobais = []; // Limpa e atualiza os dados na memória
         snapshot.forEach((docSnap) => {
-            let dados = docSnap.data();
-            let totalExibido = 0;
-            
-            // Verifica se a data selecionada é hoje
-            if (dataSelecionada === getTodayDate()) {
-                totalExibido = dados.ultimaAtualizacao === getTodayDate() ? dados.totalHoje : 0;
-            } else {
-                // Se for outro dia, busca no histórico de dias
-                if (dados.dias && dados.dias[dataSelecionada]) {
-                    totalExibido = dados.dias[dataSelecionada];
-                }
-            }
-
-            let percentage = (totalExibido / dados.goal) * 100;
-
-            rankingArray.push({
-                nome: dados.nome, 
-                total: totalExibido,
-                percentage: percentage
-            });
+            dadosGlobais.push(docSnap.data());
         });
-
-        rankingArray.sort((a, b) => b.percentage - a.percentage);
         
-        rankingArray.forEach(user => {
-            const percArredondado = Math.min(Math.round(user.percentage), 100);
-            const goalReached = user.percentage >= 100 ? 'goal-reached' : '';
-            const statusIcon = user.percentage >= 100 ? '🏆' : '💧';
-            
-            rankingList.innerHTML += `
-                <div class="ranking-item ${goalReached}">
-                    <div>
-                        <strong>${user.nome}</strong><br>
-                        <small>${percArredondado}% da meta</small>
-                    </div>
-                    <div>
-                        ${user.total} ml ${statusIcon}
-                    </div>
-                </div>
-            `;
-        });
+        window.renderizarRanking(); // Desenha a tela após baixar os dados
     });
 }
