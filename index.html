@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor de Hidratação - CODOC</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Ícone da aba para evitar erro 404 do favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
 </head>
 <body>
@@ -21,7 +20,6 @@
     <main>
         <!-- Tela de Autenticação / Cadastro -->
         <section id="auth-screen">
-            <!-- Botão do Google -->
             <div class="card" id="login-card">
                 <h2>Acesse sua conta</h2>
                 <button onclick="window.loginComGoogle()" class="google-btn">
@@ -29,18 +27,17 @@
                 </button>
             </div>
             
-            <!-- Completar dados (Só aparece na primeira vez) -->
             <div class="card hidden" id="complete-register-card">
                 <h2>Completar Cadastro</h2>
                 <p id="welcome-name"></p>
                 <input type="number" id="age" placeholder="Idade">
                 <input type="number" id="weight" placeholder="Peso (kg)">
                 <input type="number" id="height" placeholder="Altura (cm)">
-                <button onclick="window.salvarDadosGoogle()">Salvar e Começar</button>
+                <button onclick="window.salvarDadosGoogle()" class="action-btn-large">Salvar e Começar</button>
             </div>
         </section>
 
-        <!-- Tela do Dashboard (Ranking Público em Tempo Real) -->
+        <!-- Tela do Dashboard -->
         <section id="dashboard-screen" class="hidden">
             <h2>Progresso Diário da Galera</h2>
             <p class="subtitle">Atualizado em tempo real</p>
@@ -64,26 +61,31 @@
 
                 <div class="water-actions">
                     <h3>Adicionar Água Agora:</h3>
-                    <div class="water-buttons-grid">
-                        <button onclick="window.addWater(100)">100 ml</button>
-                        <button onclick="window.addWater(150)">150 ml</button>
-                        <button onclick="window.addWater(200)">200 ml</button>
-                        <button onclick="window.addWater(250)">250 ml</button>
-                        <button onclick="window.addWater(300)">300 ml</button>
-                        <button onclick="window.addWater(350)">350 ml</button>
-                        <button onclick="window.addWater(400)">400 ml</button>
-                        <button onclick="window.addWater(450)">450 ml</button>
-                        <button onclick="window.addWater(500)">500 ml</button>
-                        <button onclick="window.addWater(550)">550 ml</button>
-                        <button onclick="window.addWater(600)">600 ml</button>
-                        <button onclick="window.addWater(650)">650 ml</button>
-                        <button onclick="window.addWater(700)">700 ml</button>
-                        <button onclick="window.addWater(750)">750 ml</button>
-                        <button onclick="window.addWater(800)">800 ml</button>
-                        <button onclick="window.addWater(850)">850 ml</button>
-                        <button onclick="window.addWater(900)">900 ml</button>
-                        <button onclick="window.addWater(950)">950 ml</button>
-                        <button onclick="window.addWater(1000)">1 Litro</button>
+                    
+                    <!-- Nova estrutura com Lista Suspensa para Celulares -->
+                    <div class="water-input-group">
+                        <select id="water-amount" class="water-select">
+                            <option value="100">100 ml</option>
+                            <option value="150">150 ml</option>
+                            <option value="200" selected>200 ml (Copo comum)</option>
+                            <option value="250">250 ml</option>
+                            <option value="300">300 ml</option>
+                            <option value="350">350 ml</option>
+                            <option value="400">400 ml</option>
+                            <option value="450">450 ml</option>
+                            <option value="500">500 ml (Garrafinha)</option>
+                            <option value="550">550 ml</option>
+                            <option value="600">600 ml</option>
+                            <option value="650">650 ml</option>
+                            <option value="700">700 ml</option>
+                            <option value="750">750 ml</option>
+                            <option value="800">800 ml</option>
+                            <option value="850">850 ml</option>
+                            <option value="900">900 ml</option>
+                            <option value="950">950 ml</option>
+                            <option value="1000">1 Litro</option>
+                        </select>
+                        <button onclick="window.addSelectedWater()" class="add-btn">Registrar Água 💧</button>
                     </div>
                 </div>
 
