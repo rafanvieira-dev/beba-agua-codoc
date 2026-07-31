@@ -9,7 +9,7 @@
 </head>
 <body>
     <header>
-        <h1>💧 Beba Água CODOC</h1>
+        <h1>💧 H2O Tracker</h1>
         <nav id="menu" class="hidden">
             <button onclick="window.showScreen('dashboard-screen')">Ranking Geral</button>
             <button onclick="window.showScreen('profile-screen')">Meu Perfil</button>
@@ -40,9 +40,9 @@
         <!-- Tela do Dashboard -->
         <section id="dashboard-screen" class="hidden">
             <h2>Progresso da Galera</h2>
-            <p class="subtitle">Selecione um dia para ver o histórico</p>
+            <p id="dashboard-subtitle" class="subtitle">Atualizado em tempo real</p>
             
-            <!-- Novo filtro de data -->
+            <!-- Filtro de data -->
             <input type="date" id="ranking-date" class="date-filter" onchange="window.mudarDataRanking()">
 
             <div id="ranking-list" class="ranking-container">
