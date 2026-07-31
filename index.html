@@ -9,7 +9,7 @@
 </head>
 <body>
     <header>
-        <h1>💧 Beba Água - CODOC</h1>
+        <h1>💧 Beba Água CODOC</h1>
         <nav id="menu" class="hidden">
             <button onclick="window.showScreen('dashboard-screen')">Ranking Geral</button>
             <button onclick="window.showScreen('profile-screen')">Meu Perfil</button>
@@ -39,8 +39,12 @@
 
         <!-- Tela do Dashboard -->
         <section id="dashboard-screen" class="hidden">
-            <h2>Progresso Diário da Galera</h2>
-            <p class="subtitle">Atualizado em tempo real</p>
+            <h2>Progresso da Galera</h2>
+            <p class="subtitle">Selecione um dia para ver o histórico</p>
+            
+            <!-- Novo filtro de data -->
+            <input type="date" id="ranking-date" class="date-filter" onchange="window.mudarDataRanking()">
+
             <div id="ranking-list" class="ranking-container">
                 <!-- Preenchido via JS com dados do Firebase -->
             </div>
@@ -61,8 +65,6 @@
 
                 <div class="water-actions">
                     <h3>Adicionar Água Agora:</h3>
-                    
-                    <!-- Nova estrutura com Lista Suspensa para Celulares -->
                     <div class="water-input-group">
                         <select id="water-amount" class="water-select">
                             <option value="100">100 ml</option>
@@ -99,7 +101,10 @@
         </section>
     </main>
 
+    <footer>
+        <p style="text-align: center; padding: 15px; font-size: 0.9em; color: #666;">Criado por Rafael N Vieira e Gemini</p>
+    </footer>
+
     <script type="module" src="script.js"></script>
-    <footer><p style="text-align: center; padding: 15px; font-size: 0.9em; color: #666;">Criado por Rafael N Vieira e Gemini</p></footer>
 </body>
 </html>
