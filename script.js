@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+// Adicionamos o onAuthStateChanged na importação abaixo:
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDdoRkqJQ0Qvp-UXQrcWTru7BBgGL93TV0",
@@ -21,13 +22,42 @@ const provider = new GoogleAuthProvider();
 
 let currentUser = null; 
 let unsubDashboard = null; 
-let dadosGlobais = []; // Variável para armazenar o banco e não precisar baixar de novo ao mudar a data
+let dadosGlobais = []; 
 
 const getTodayDate = () => {
     const today = new Date();
     today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
     return today.toISOString().split('T')[0];
 };
+
+// Monitorar o estado de autenticação (Manter o usuário logado ao atualizar)
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // Se o Firebase detectar que existe um usuário logado
+        const userRef = doc(db, "usuarios", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            // Se o cadastro estiver completo, vai direto pro perfil
+            currentUser = user.uid;
+            document.getElementById('menu').classList.remove('hidden');
+            window.showScreen('profile-screen');
+        } else {
+            // Se ele logou mas não completou o peso/idade, pede os dados
+            document.getElementById('login-card').classList.add('hidden');
+            document.getElementById('complete-register-card').classList.remove('hidden');
+            document.getElementById('welcome-name').innerText = `Bem-vindo, ${user.displayName}! Precisamos de mais alguns dados.`;
+            window.showScreen('auth-screen');
+        }
+    } else {
+        // Ninguém está logado
+        currentUser = null;
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('login-card').classList.remove('hidden');
+        document.getElementById('complete-register-card').classList.add('hidden');
+        window.showScreen('auth-screen');
+    }
+});
 
 window.loginComGoogle = async function() {
     try {
@@ -180,7 +210,6 @@ window.addWater = async function(amount) {
 
     novoTotal += amount;
     
-    // Grava o valor no dia de hoje para o histórico não se perder
     dias[getTodayDate()] = novoTotal;
     
     const now = new Date();
@@ -202,7 +231,6 @@ window.addWater = async function(amount) {
     }
 };
 
-// Esta função agora desenha a tela filtrando os dados guardados na memória
 window.renderizarRanking = function() {
     const dataSelecionada = document.getElementById('ranking-date').value || getTodayDate();
     const hoje = getTodayDate();
@@ -211,7 +239,7 @@ window.renderizarRanking = function() {
     if (dataSelecionada === hoje) {
         subtitle.innerText = "Atualizado em tempo real";
     } else {
-        const partes = dataSelecionada.split('-'); // Quebra YYYY-MM-DD
+        const partes = dataSelecionada.split('-');
         if (partes.length === 3) {
             subtitle.innerText = `Histórico do dia ${partes[2]}/${partes[1]}/${partes[0]}`;
         }
@@ -230,7 +258,7 @@ window.renderizarRanking = function() {
             if (dados.dias && dados.dias[dataSelecionada] !== undefined) {
                 totalExibido = dados.dias[dataSelecionada];
             } else {
-                totalExibido = 0; // Se não tem registro antigo, força zero!
+                totalExibido = 0; 
             }
         }
 
@@ -246,11 +274,9 @@ window.renderizarRanking = function() {
     rankingArray.sort((a, b) => b.percentage - a.percentage);
     
     rankingArray.forEach(user => {
-        // Trava a porcentagem máxima em 100%
         const percArredondado = Math.min(Math.round(user.percentage), 100);
         const goalReached = user.percentage >= 100 ? 'goal-reached' : '';
         
-        // Define o texto a ser exibido: "Meta atingida 🏆" ou apenas a porcentagem
         let displayStatus = user.percentage >= 100 ? 'Meta atingida 🏆' : `${percArredondado}% da meta`;
         
         rankingList.innerHTML += `
@@ -266,7 +292,6 @@ window.renderizarRanking = function() {
     });
 };
 
-// Acionado instantaneamente pelo clique no calendário
 window.mudarDataRanking = function() {
     window.renderizarRanking();
 };
@@ -277,11 +302,11 @@ function carregarDashboard() {
     if (unsubDashboard) unsubDashboard(); 
     
     unsubDashboard = onSnapshot(usuariosRef, (snapshot) => {
-        dadosGlobais = []; // Limpa e atualiza os dados na memória
+        dadosGlobais = []; 
         snapshot.forEach((docSnap) => {
             dadosGlobais.push(docSnap.data());
         });
         
-        window.renderizarRanking(); // Desenha a tela após baixar os dados
+        window.renderizarRanking(); 
     });
 }
