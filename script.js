@@ -246,18 +246,20 @@ window.renderizarRanking = function() {
     rankingArray.sort((a, b) => b.percentage - a.percentage);
     
     rankingArray.forEach(user => {
+        // Trava a porcentagem máxima em 100%
         const percArredondado = Math.min(Math.round(user.percentage), 100);
         const goalReached = user.percentage >= 100 ? 'goal-reached' : '';
-        const statusIcon = user.percentage >= 100 ? '🏆' : '💧';
+        
+        // Define o texto a ser exibido: "Meta atingida 🏆" ou apenas a porcentagem
+        let displayStatus = user.percentage >= 100 ? 'Meta atingida 🏆' : `${percArredondado}% da meta`;
         
         rankingList.innerHTML += `
             <div class="ranking-item ${goalReached}">
                 <div>
-                    <strong>${user.nome}</strong><br>
-                    <small>${percArredondado}% da meta</small>
+                    <strong>${user.nome}</strong>
                 </div>
-                <div>
-                    ${user.total} ml ${statusIcon}
+                <div style="font-weight: bold; color: ${user.percentage >= 100 ? '#2ecc71' : '#555'};">
+                    ${displayStatus}
                 </div>
             </div>
         `;
