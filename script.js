@@ -35,7 +35,7 @@ const getCurrentMonth = () => {
     return today.toISOString().split('-').slice(0, 2).join('-');
 };
 
-// Monitorar o estado de autenticação (Manter o usuário logado ao atualizar)
+// Monitorar o estado de autenticação
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = doc(db, "usuarios", user.uid);
@@ -123,9 +123,7 @@ window.logout = async function() {
         document.getElementById('login-card').classList.remove('hidden');
         document.getElementById('complete-register-card').classList.add('hidden');
         
-        if(unsubDashboard) {
-            unsubDashboard(); 
-        }
+        if(unsubDashboard) unsubDashboard(); 
         
         window.showScreen('auth-screen');
     } catch (error) {
@@ -133,23 +131,71 @@ window.logout = async function() {
     }
 };
 
+// Funções para Editar o Perfil
+window.toggleEditProfile = async function() {
+    const form = document.getElementById('edit-profile-form');
+    form.classList.toggle('hidden');
+    
+    // Se estiver abrindo o form, busca os dados atuais para preencher os inputs
+    if (!form.classList.contains('hidden')) {
+        const userRef = doc(db, "usuarios", currentUser);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            const dados = userSnap.data();
+            document.getElementById('edit-age').value = dados.age || '';
+            document.getElementById('edit-weight').value = dados.weight || '';
+            document.getElementById('edit-height').value = dados.height || '';
+        }
+    }
+};
+
+window.salvarEdicaoPerfil = async function() {
+    const weight = document.getElementById('edit-weight').value;
+    const height = document.getElementById('edit-height').value;
+    const age = document.getElementById('edit-age').value;
+
+    if (!weight || !height || !age) return alert('Por favor, preencha todos os campos!');
+
+    // Recalcula a nova meta baseada no novo peso
+    const newGoal = Math.round(weight * 35);
+    const userRef = doc(db, "usuarios", currentUser);
+
+    const btn = document.querySelector('#edit-profile-form .action-btn-large');
+    btn.disabled = true;
+    btn.innerText = 'Salvando...';
+
+    // Atualiza apenas os campos específicos no Firebase
+    await updateDoc(userRef, {
+        weight: weight,
+        height: height,
+        age: age,
+        goal: newGoal
+    });
+
+    btn.disabled = false;
+    btn.innerText = 'Salvar Nova Meta';
+
+    document.getElementById('edit-profile-form').classList.add('hidden');
+    
+    // Atualiza a interface
+    carregarPerfil();
+};
+
 window.showScreen = function(screenId) {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('dashboard-screen').classList.add('hidden');
     document.getElementById('monthly-ranking-screen').classList.add('hidden');
     document.getElementById('profile-screen').classList.add('hidden');
+    // Esconde o formulário de edição se estiver navegando entre telas
+    document.getElementById('edit-profile-form').classList.add('hidden');
     
     document.getElementById(screenId).classList.remove('hidden');
 
     if (screenId === 'profile-screen' && currentUser) carregarPerfil();
     
     if (screenId === 'dashboard-screen' || screenId === 'monthly-ranking-screen') {
-        if (screenId === 'dashboard-screen') {
-            document.getElementById('ranking-date').value = getTodayDate();
-        }
-        if (screenId === 'monthly-ranking-screen') {
-            document.getElementById('monthly-date').value = getCurrentMonth();
-        }
+        if (screenId === 'dashboard-screen') document.getElementById('ranking-date').value = getTodayDate();
+        if (screenId === 'monthly-ranking-screen') document.getElementById('monthly-date').value = getCurrentMonth();
         carregarDashboard();
     }
 };
@@ -188,10 +234,7 @@ async function carregarPerfil() {
 window.addSelectedWater = function() {
     const select = document.getElementById('water-amount');
     const amount = parseInt(select.value);
-    
-    if (amount > 0) {
-        window.addWater(amount);
-    }
+    if (amount > 0) window.addWater(amount);
 };
 
 window.addWater = async function(amount) {
@@ -217,7 +260,6 @@ window.addWater = async function(amount) {
     }
 
     novoTotal += amount;
-    
     dias[getTodayDate()] = novoTotal;
     
     const now = new Date();
@@ -248,9 +290,7 @@ window.renderizarRanking = function() {
         subtitle.innerText = "Atualizado em tempo real";
     } else {
         const partes = dataSelecionada.split('-');
-        if (partes.length === 3) {
-            subtitle.innerText = `Histórico do dia ${partes[2]}/${partes[1]}/${partes[0]}`;
-        }
+        if (partes.length === 3) subtitle.innerText = `Histórico do dia ${partes[2]}/${partes[1]}/${partes[0]}`;
     }
     
     const rankingList = document.getElementById('ranking-list');
@@ -284,17 +324,12 @@ window.renderizarRanking = function() {
     rankingArray.forEach(user => {
         const percArredondado = Math.min(Math.round(user.percentage), 100);
         const goalReached = user.percentage >= 100 ? 'goal-reached' : '';
-        
         let displayStatus = user.percentage >= 100 ? 'Meta atingida 🏆' : `${percArredondado}% da meta`;
         
         rankingList.innerHTML += `
             <div class="ranking-item ${goalReached}">
-                <div>
-                    <strong>${user.nome}</strong>
-                </div>
-                <div style="font-weight: bold; color: ${user.percentage >= 100 ? '#2ecc71' : '#555'};">
-                    ${displayStatus}
-                </div>
+                <div><strong>${user.nome}</strong></div>
+                <div style="font-weight: bold; color: ${user.percentage >= 100 ? '#2ecc71' : '#555'};">${displayStatus}</div>
             </div>
         `;
     });
@@ -305,9 +340,7 @@ window.renderizarRankingMensal = function() {
     const subtitle = document.getElementById('monthly-subtitle');
     
     const partes = mesSelecionado.split('-');
-    if (partes.length === 2) {
-        subtitle.innerText = `Metas atingidas em ${partes[1]}/${partes[0]}`;
-    }
+    if (partes.length === 2) subtitle.innerText = `Metas atingidas em ${partes[1]}/${partes[0]}`;
     
     const rankingList = document.getElementById('monthly-ranking-list');
     rankingList.innerHTML = '';
@@ -315,11 +348,8 @@ window.renderizarRankingMensal = function() {
 
     dadosGlobais.forEach((dados) => {
         let diasAtingidos = 0;
-        
-        // Verifica todos os dias registrados pelo usuário
         if (dados.dias) {
             for (const [data, total] of Object.entries(dados.dias)) {
-                // Se a data iniciar com o mês selecionado (Ex: "2024-05")
                 if (data.startsWith(mesSelecionado)) {
                     if (dados.goal > 0 && total >= dados.goal) {
                         diasAtingidos++;
@@ -327,44 +357,28 @@ window.renderizarRankingMensal = function() {
                 }
             }
         }
-
-        rankingArray.push({
-            nome: dados.nome || "Usuário", 
-            dias: diasAtingidos
-        });
+        rankingArray.push({ nome: dados.nome || "Usuário", dias: diasAtingidos });
     });
 
-    // Ordena do maior número de dias atingidos para o menor
     rankingArray.sort((a, b) => b.dias - a.dias);
     
     rankingArray.forEach(user => {
         const badge = user.dias > 0 ? '🏆' : '';
         const borderClass = user.dias > 0 ? 'goal-reached' : '';
-        
         rankingList.innerHTML += `
             <div class="ranking-item ${borderClass}">
-                <div>
-                    <strong>${user.nome}</strong>
-                </div>
-                <div style="font-weight: bold; color: #0077b6;">
-                    ${user.dias} dias ${badge}
-                </div>
+                <div><strong>${user.nome}</strong></div>
+                <div style="font-weight: bold; color: #0077b6;">${user.dias} dias ${badge}</div>
             </div>
         `;
     });
 };
 
-window.mudarDataRanking = function() {
-    window.renderizarRanking();
-};
-
-window.mudarDataMensal = function() {
-    window.renderizarRankingMensal();
-};
+window.mudarDataRanking = function() { window.renderizarRanking(); };
+window.mudarDataMensal = function() { window.renderizarRankingMensal(); };
 
 function carregarDashboard() {
     const usuariosRef = collection(db, "usuarios");
-    
     if (unsubDashboard) unsubDashboard(); 
     
     unsubDashboard = onSnapshot(usuariosRef, (snapshot) => {
@@ -372,8 +386,7 @@ function carregarDashboard() {
         snapshot.forEach((docSnap) => {
             dadosGlobais.push(docSnap.data());
         });
-        
         window.renderizarRanking(); 
-        window.renderizarRankingMensal(); // Atualiza ambos os rankings em tempo real
+        window.renderizarRankingMensal(); 
     });
 }
