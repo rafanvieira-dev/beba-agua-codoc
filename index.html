@@ -68,7 +68,25 @@
         <section id="profile-screen" class="hidden">
             <h2>Meu Painel</h2>
             <div class="card profile-card">
-                <h3 id="user-greeting">Olá!</h3>
+                
+                <!-- Cabeçalho do Perfil com botão de Editar -->
+                <div class="profile-header-actions">
+                    <h3 id="user-greeting">Olá!</h3>
+                    <button onclick="window.toggleEditProfile()" class="small-btn">✏️ Editar</button>
+                </div>
+
+                <!-- Formulário de Edição (Oculto por padrão) -->
+                <div id="edit-profile-form" class="hidden edit-section">
+                    <h4>Atualizar Dados Físicos</h4>
+                    <input type="number" id="edit-age" placeholder="Idade">
+                    <input type="number" id="edit-weight" placeholder="Peso (kg)">
+                    <input type="number" id="edit-height" placeholder="Altura (cm)">
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="window.salvarEdicaoPerfil()" class="action-btn-large">Salvar Nova Meta</button>
+                        <button onclick="window.toggleEditProfile()" class="cancel-btn">Cancelar</button>
+                    </div>
+                </div>
+
                 <p>Sua meta diária: <strong id="user-goal">0</strong> ml</p>
                 <p>Você já bebeu: <strong id="user-current">0</strong> ml</p>
                 
