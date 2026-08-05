@@ -12,6 +12,7 @@
         <h1>💧 Beba Água CODOC</h1>
         <nav id="menu" class="hidden">
             <button onclick="window.showScreen('dashboard-screen')">Ranking Geral</button>
+            <button onclick="window.showScreen('monthly-ranking-screen')">Ranking Mensal</button>
             <button onclick="window.showScreen('profile-screen')">Meu Perfil</button>
             <button onclick="window.logout()">Sair</button>
         </nav>
@@ -37,7 +38,7 @@
             </div>
         </section>
 
-        <!-- Tela do Dashboard -->
+        <!-- Tela do Dashboard Geral (Diário) -->
         <section id="dashboard-screen" class="hidden">
             <h2>Progresso da Galera</h2>
             <p id="dashboard-subtitle" class="subtitle">Atualizado em tempo real</p>
@@ -46,6 +47,19 @@
             <input type="date" id="ranking-date" class="date-filter" onchange="window.mudarDataRanking()">
 
             <div id="ranking-list" class="ranking-container">
+                <!-- Preenchido via JS com dados do Firebase -->
+            </div>
+        </section>
+
+        <!-- Tela de Ranking Mensal -->
+        <section id="monthly-ranking-screen" class="hidden">
+            <h2>Ranking Mensal</h2>
+            <p id="monthly-subtitle" class="subtitle">Dias com a meta atingida no mês</p>
+            
+            <!-- Filtro de mês -->
+            <input type="month" id="monthly-date" class="date-filter" onchange="window.mudarDataMensal()">
+
+            <div id="monthly-ranking-list" class="ranking-container">
                 <!-- Preenchido via JS com dados do Firebase -->
             </div>
         </section>
