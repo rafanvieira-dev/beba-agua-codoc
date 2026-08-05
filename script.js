@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-// Adicionamos o onAuthStateChanged na importação abaixo:
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -30,27 +29,29 @@ const getTodayDate = () => {
     return today.toISOString().split('T')[0];
 };
 
+const getCurrentMonth = () => {
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    return today.toISOString().split('-').slice(0, 2).join('-');
+};
+
 // Monitorar o estado de autenticação (Manter o usuário logado ao atualizar)
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Se o Firebase detectar que existe um usuário logado
         const userRef = doc(db, "usuarios", user.uid);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
-            // Se o cadastro estiver completo, vai direto pro perfil
             currentUser = user.uid;
             document.getElementById('menu').classList.remove('hidden');
             window.showScreen('profile-screen');
         } else {
-            // Se ele logou mas não completou o peso/idade, pede os dados
             document.getElementById('login-card').classList.add('hidden');
             document.getElementById('complete-register-card').classList.remove('hidden');
             document.getElementById('welcome-name').innerText = `Bem-vindo, ${user.displayName}! Precisamos de mais alguns dados.`;
             window.showScreen('auth-screen');
         }
     } else {
-        // Ninguém está logado
         currentUser = null;
         document.getElementById('menu').classList.add('hidden');
         document.getElementById('login-card').classList.remove('hidden');
@@ -135,13 +136,20 @@ window.logout = async function() {
 window.showScreen = function(screenId) {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('dashboard-screen').classList.add('hidden');
+    document.getElementById('monthly-ranking-screen').classList.add('hidden');
     document.getElementById('profile-screen').classList.add('hidden');
     
     document.getElementById(screenId).classList.remove('hidden');
 
     if (screenId === 'profile-screen' && currentUser) carregarPerfil();
-    if (screenId === 'dashboard-screen') {
-        document.getElementById('ranking-date').value = getTodayDate();
+    
+    if (screenId === 'dashboard-screen' || screenId === 'monthly-ranking-screen') {
+        if (screenId === 'dashboard-screen') {
+            document.getElementById('ranking-date').value = getTodayDate();
+        }
+        if (screenId === 'monthly-ranking-screen') {
+            document.getElementById('monthly-date').value = getCurrentMonth();
+        }
         carregarDashboard();
     }
 };
@@ -292,8 +300,66 @@ window.renderizarRanking = function() {
     });
 };
 
+window.renderizarRankingMensal = function() {
+    const mesSelecionado = document.getElementById('monthly-date').value || getCurrentMonth(); 
+    const subtitle = document.getElementById('monthly-subtitle');
+    
+    const partes = mesSelecionado.split('-');
+    if (partes.length === 2) {
+        subtitle.innerText = `Metas atingidas em ${partes[1]}/${partes[0]}`;
+    }
+    
+    const rankingList = document.getElementById('monthly-ranking-list');
+    rankingList.innerHTML = '';
+    let rankingArray = [];
+
+    dadosGlobais.forEach((dados) => {
+        let diasAtingidos = 0;
+        
+        // Verifica todos os dias registrados pelo usuário
+        if (dados.dias) {
+            for (const [data, total] of Object.entries(dados.dias)) {
+                // Se a data iniciar com o mês selecionado (Ex: "2024-05")
+                if (data.startsWith(mesSelecionado)) {
+                    if (dados.goal > 0 && total >= dados.goal) {
+                        diasAtingidos++;
+                    }
+                }
+            }
+        }
+
+        rankingArray.push({
+            nome: dados.nome || "Usuário", 
+            dias: diasAtingidos
+        });
+    });
+
+    // Ordena do maior número de dias atingidos para o menor
+    rankingArray.sort((a, b) => b.dias - a.dias);
+    
+    rankingArray.forEach(user => {
+        const badge = user.dias > 0 ? '🏆' : '';
+        const borderClass = user.dias > 0 ? 'goal-reached' : '';
+        
+        rankingList.innerHTML += `
+            <div class="ranking-item ${borderClass}">
+                <div>
+                    <strong>${user.nome}</strong>
+                </div>
+                <div style="font-weight: bold; color: #0077b6;">
+                    ${user.dias} dias ${badge}
+                </div>
+            </div>
+        `;
+    });
+};
+
 window.mudarDataRanking = function() {
     window.renderizarRanking();
+};
+
+window.mudarDataMensal = function() {
+    window.renderizarRankingMensal();
 };
 
 function carregarDashboard() {
@@ -308,5 +374,6 @@ function carregarDashboard() {
         });
         
         window.renderizarRanking(); 
+        window.renderizarRankingMensal(); // Atualiza ambos os rankings em tempo real
     });
 }
