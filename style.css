@@ -8,43 +8,62 @@
 body {
     background-color: #f0f8ff;
     color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
+/* Container do layout em colunas */
+.app-container {
+    display: flex;
+    flex: 1; /* Ocupa todo o espaço restante empurrando o footer pra baixo */
+    flex-direction: row; 
+}
+
+/* MENU LATERAL (Header) */
 header {
     background-color: #0077b6;
     color: white;
-    padding: 1.2rem 1rem;
+    padding: 2rem 1.5rem;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    width: 260px; /* Largura fixa da barra lateral */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Faz a lateral ir até o fim */
 }
 
 nav {
-    margin-top: 15px;
+    margin-top: 40px;
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    flex-direction: column; /* Empilha os botões */
+    gap: 15px;
+    width: 100%;
 }
 
 nav button {
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
+    padding: 12px 15px;
+    border-radius: 8px; /* Botões mais quadrados na lateral */
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 1em;
+    width: 100%;
+    transition: background 0.3s;
 }
 
 nav button:hover {
     background: rgba(255, 255, 255, 0.4);
 }
 
+/* ÁREA PRINCIPAL (Meio) */
 main {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 0 15px;
-    min-height: 80vh;
+    flex: 1;
+    max-width: 800px;
+    margin: 40px auto; /* Centraliza na área que sobrou */
+    padding: 0 30px;
 }
 
 .hidden {
@@ -210,8 +229,8 @@ button:hover {
     border-radius: 5px;
     margin-bottom: 5px;
 }
-/* Adicione estas classes no final do seu style.css */
 
+/* Edição de Perfil */
 .profile-header-actions {
     display: flex;
     justify-content: space-between;
@@ -255,4 +274,37 @@ button:hover {
     margin-bottom: 15px;
     color: #0077b6;
     text-align: center;
+}
+
+/* RESPONSIVIDADE (Mobile) */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column; /* No celular, volta a empilhar */
+    }
+
+    header {
+        width: 100%; /* Ocupa 100% da largura da tela */
+        min-height: auto;
+        padding: 1.5rem 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    nav {
+        flex-direction: row; /* Botões um do lado do outro */
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    nav button {
+        width: auto; /* Tira os 100% dos botões no mobile */
+        border-radius: 20px; /* Arredondado novamente */
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+
+    main {
+        margin: 20px auto;
+        padding: 0 15px;
+    }
 }
