@@ -8,130 +8,137 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
 </head>
 <body>
-    <header>
-        <h1>💧 Beba Água CODOC</h1>
-        <nav id="menu" class="hidden">
-            <button onclick="window.showScreen('dashboard-screen')">Ranking Geral</button>
-            <button onclick="window.showScreen('monthly-ranking-screen')">Ranking Mensal</button>
-            <button onclick="window.showScreen('profile-screen')">Meu Perfil</button>
-            <button onclick="window.logout()">Sair</button>
-        </nav>
-    </header>
+    
+    <!-- Container principal para dividir a tela (Lateral x Conteúdo) -->
+    <div class="app-container">
+        
+        <!-- HEADER (Agora atuará como Menu Lateral) -->
+        <header>
+            <h1>💧 Beba Água CODOC</h1>
+            <nav id="menu" class="hidden">
+                <button onclick="window.showScreen('dashboard-screen')">Ranking Geral</button>
+                <button onclick="window.showScreen('monthly-ranking-screen')">Ranking Mensal</button>
+                <button onclick="window.showScreen('profile-screen')">Meu Perfil</button>
+                <button onclick="window.logout()">Sair</button>
+            </nav>
+        </header>
 
-    <main>
-        <!-- Tela de Autenticação / Cadastro -->
-        <section id="auth-screen">
-            <div class="card" id="login-card">
-                <h2>Acesse sua conta</h2>
-                <button onclick="window.loginComGoogle()" class="google-btn">
-                    📧 Entrar com o Google
-                </button>
-            </div>
-            
-            <div class="card hidden" id="complete-register-card">
-                <h2>Completar Cadastro</h2>
-                <p id="welcome-name"></p>
-                <input type="number" id="age" placeholder="Idade">
-                <input type="number" id="weight" placeholder="Peso (kg)">
-                <input type="number" id="height" placeholder="Altura (cm)">
-                <button onclick="window.salvarDadosGoogle()" class="action-btn-large">Salvar e Começar</button>
-            </div>
-        </section>
-
-        <!-- Tela do Dashboard Geral (Diário) -->
-        <section id="dashboard-screen" class="hidden">
-            <h2>Progresso da Galera</h2>
-            <p id="dashboard-subtitle" class="subtitle">Atualizado em tempo real</p>
-            
-            <!-- Filtro de data -->
-            <input type="date" id="ranking-date" class="date-filter" onchange="window.mudarDataRanking()">
-
-            <div id="ranking-list" class="ranking-container">
-                <!-- Preenchido via JS com dados do Firebase -->
-            </div>
-        </section>
-
-        <!-- Tela de Ranking Mensal -->
-        <section id="monthly-ranking-screen" class="hidden">
-            <h2>Ranking Mensal</h2>
-            <p id="monthly-subtitle" class="subtitle">Dias com a meta atingida no mês</p>
-            
-            <!-- Filtro de mês -->
-            <input type="month" id="monthly-date" class="date-filter" onchange="window.mudarDataMensal()">
-
-            <div id="monthly-ranking-list" class="ranking-container">
-                <!-- Preenchido via JS com dados do Firebase -->
-            </div>
-        </section>
-
-        <!-- Tela de Perfil Pessoal -->
-        <section id="profile-screen" class="hidden">
-            <h2>Meu Painel</h2>
-            <div class="card profile-card">
-                
-                <!-- Cabeçalho do Perfil com botão de Editar -->
-                <div class="profile-header-actions">
-                    <h3 id="user-greeting">Olá!</h3>
-                    <button onclick="window.toggleEditProfile()" class="small-btn">✏️ Editar</button>
+        <!-- MAIN (Área Central de Conteúdo) -->
+        <main>
+            <!-- Tela de Autenticação / Cadastro -->
+            <section id="auth-screen">
+                <div class="card" id="login-card">
+                    <h2>Acesse sua conta</h2>
+                    <button onclick="window.loginComGoogle()" class="google-btn">
+                        📧 Entrar com o Google
+                    </button>
                 </div>
+                
+                <div class="card hidden" id="complete-register-card">
+                    <h2>Completar Cadastro</h2>
+                    <p id="welcome-name"></p>
+                    <input type="number" id="age" placeholder="Idade">
+                    <input type="number" id="weight" placeholder="Peso (kg)">
+                    <input type="number" id="height" placeholder="Altura (cm)">
+                    <button onclick="window.salvarDadosGoogle()" class="action-btn-large">Salvar e Começar</button>
+                </div>
+            </section>
 
-                <!-- Formulário de Edição (Oculto por padrão) -->
-                <div id="edit-profile-form" class="hidden edit-section">
-                    <h4>Atualizar Dados Físicos</h4>
-                    <input type="number" id="edit-age" placeholder="Idade">
-                    <input type="number" id="edit-weight" placeholder="Peso (kg)">
-                    <input type="number" id="edit-height" placeholder="Altura (cm)">
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="window.salvarEdicaoPerfil()" class="action-btn-large">Salvar Nova Meta</button>
-                        <button onclick="window.toggleEditProfile()" class="cancel-btn">Cancelar</button>
+            <!-- Tela do Dashboard Geral (Diário) -->
+            <section id="dashboard-screen" class="hidden">
+                <h2>Progresso da Galera</h2>
+                <p id="dashboard-subtitle" class="subtitle">Atualizado em tempo real</p>
+                
+                <!-- Filtro de data -->
+                <input type="date" id="ranking-date" class="date-filter" onchange="window.mudarDataRanking()">
+
+                <div id="ranking-list" class="ranking-container">
+                    <!-- Preenchido via JS com dados do Firebase -->
+                </div>
+            </section>
+
+            <!-- Tela de Ranking Mensal -->
+            <section id="monthly-ranking-screen" class="hidden">
+                <h2>Ranking Mensal</h2>
+                <p id="monthly-subtitle" class="subtitle">Dias com a meta atingida no mês</p>
+                
+                <!-- Filtro de mês -->
+                <input type="month" id="monthly-date" class="date-filter" onchange="window.mudarDataMensal()">
+
+                <div id="monthly-ranking-list" class="ranking-container">
+                    <!-- Preenchido via JS com dados do Firebase -->
+                </div>
+            </section>
+
+            <!-- Tela de Perfil Pessoal -->
+            <section id="profile-screen" class="hidden">
+                <h2>Meu Painel</h2>
+                <div class="card profile-card">
+                    
+                    <!-- Cabeçalho do Perfil com botão de Editar -->
+                    <div class="profile-header-actions">
+                        <h3 id="user-greeting">Olá!</h3>
+                        <button onclick="window.toggleEditProfile()" class="small-btn">✏️ Editar</button>
+                    </div>
+
+                    <!-- Formulário de Edição (Oculto por padrão) -->
+                    <div id="edit-profile-form" class="hidden edit-section">
+                        <h4>Atualizar Dados Físicos</h4>
+                        <input type="number" id="edit-age" placeholder="Idade">
+                        <input type="number" id="edit-weight" placeholder="Peso (kg)">
+                        <input type="number" id="edit-height" placeholder="Altura (cm)">
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="window.salvarEdicaoPerfil()" class="action-btn-large">Salvar Nova Meta</button>
+                            <button onclick="window.toggleEditProfile()" class="cancel-btn">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <p>Sua meta diária: <strong id="user-goal">0</strong> ml</p>
+                    <p>Você já bebeu: <strong id="user-current">0</strong> ml</p>
+                    
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <p id="progress-text">0%</p>
+
+                    <div class="water-actions">
+                        <h3>Adicionar Água Agora:</h3>
+                        <div class="water-input-group">
+                            <select id="water-amount" class="water-select">
+                                <option value="100">100 ml</option>
+                                <option value="150">150 ml</option>
+                                <option value="200" selected>200 ml (Copo comum)</option>
+                                <option value="250">250 ml</option>
+                                <option value="300">300 ml</option>
+                                <option value="350">350 ml</option>
+                                <option value="400">400 ml</option>
+                                <option value="450">450 ml</option>
+                                <option value="500">500 ml (Garrafinha)</option>
+                                <option value="550">550 ml</option>
+                                <option value="600">600 ml</option>
+                                <option value="650">650 ml</option>
+                                <option value="700">700 ml</option>
+                                <option value="750">750 ml</option>
+                                <option value="800">800 ml</option>
+                                <option value="850">850 ml</option>
+                                <option value="900">900 ml</option>
+                                <option value="950">950 ml</option>
+                                <option value="1000">1 Litro</option>
+                            </select>
+                            <button onclick="window.addSelectedWater()" class="add-btn">Registrar Água 💧</button>
+                        </div>
+                    </div>
+
+                    <div class="history">
+                        <h3>Histórico de Hoje</h3>
+                        <ul id="water-history">
+                            <!-- Preenchido via JS -->
+                        </ul>
                     </div>
                 </div>
-
-                <p>Sua meta diária: <strong id="user-goal">0</strong> ml</p>
-                <p>Você já bebeu: <strong id="user-current">0</strong> ml</p>
-                
-                <div class="progress-bar">
-                    <div id="progress-fill" class="progress-fill"></div>
-                </div>
-                <p id="progress-text">0%</p>
-
-                <div class="water-actions">
-                    <h3>Adicionar Água Agora:</h3>
-                    <div class="water-input-group">
-                        <select id="water-amount" class="water-select">
-                            <option value="100">100 ml</option>
-                            <option value="150">150 ml</option>
-                            <option value="200" selected>200 ml (Copo comum)</option>
-                            <option value="250">250 ml</option>
-                            <option value="300">300 ml</option>
-                            <option value="350">350 ml</option>
-                            <option value="400">400 ml</option>
-                            <option value="450">450 ml</option>
-                            <option value="500">500 ml (Garrafinha)</option>
-                            <option value="550">550 ml</option>
-                            <option value="600">600 ml</option>
-                            <option value="650">650 ml</option>
-                            <option value="700">700 ml</option>
-                            <option value="750">750 ml</option>
-                            <option value="800">800 ml</option>
-                            <option value="850">850 ml</option>
-                            <option value="900">900 ml</option>
-                            <option value="950">950 ml</option>
-                            <option value="1000">1 Litro</option>
-                        </select>
-                        <button onclick="window.addSelectedWater()" class="add-btn">Registrar Água 💧</button>
-                    </div>
-                </div>
-
-                <div class="history">
-                    <h3>Histórico de Hoje</h3>
-                    <ul id="water-history">
-                        <!-- Preenchido via JS -->
-                    </ul>
-                </div>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
+    </div>
 
     <footer>
         <p style="text-align: center; padding: 15px; font-size: 0.9em; color: #666;">Criado por Rafael N Vieira e Gemini</p>
