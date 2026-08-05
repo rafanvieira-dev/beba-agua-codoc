@@ -210,3 +210,49 @@ button:hover {
     border-radius: 5px;
     margin-bottom: 5px;
 }
+/* Adicione estas classes no final do seu style.css */
+
+.profile-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.small-btn {
+    background-color: #f1c40f;
+    color: #333;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    width: auto;
+    margin-top: 0;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.small-btn:hover {
+    background-color: #f39c12;
+}
+
+.cancel-btn {
+    background-color: #95a5a6;
+}
+
+.cancel-btn:hover {
+    background-color: #7f8c8d;
+}
+
+.edit-section {
+    background-color: #f8fcfd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px dashed #00b4d8;
+    text-align: left;
+}
+
+.edit-section h4 {
+    margin-bottom: 15px;
+    color: #0077b6;
+    text-align: center;
+}
