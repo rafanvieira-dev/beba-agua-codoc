@@ -200,6 +200,66 @@ window.showScreen = function(screenId) {
     }
 };
 
+
+function formatarMl(valor) {
+    return new Intl.NumberFormat('pt-BR').format(valor || 0) + ' ml';
+}
+
+function obterDataLocal(offsetDias) {
+    const data = new Date();
+    data.setDate(data.getDate() + offsetDias);
+    data.setMinutes(data.getMinutes() - data.getTimezoneOffset());
+    return data.toISOString().slice(0, 10);
+}
+
+function renderizarGrafico(elementId, resumoId, registros, compacto = false) {
+    const chart = document.getElementById(elementId);
+    const summary = document.getElementById(resumoId);
+    if (!chart || !summary) return;
+
+    const valores = registros.map(item => Math.max(0, Number(item.valor) || 0));
+    const maximo = Math.max(...valores, 1);
+    chart.innerHTML = registros.map((item, index) => {
+        const valor = valores[index];
+        const altura = valor > 0 ? Math.max(5, Math.round((valor / maximo) * 100)) : 3;
+        const label = item.rotulo;
+        const ml = formatarMl(valor);
+        return `<div class="bar-column" title="${label}: ${ml}">
+            <span class="bar-value">${valor > 0 ? (valor >= 1000 ? (valor / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'L' : valor) : '—'}</span>
+            <div class="bar" style="height:${altura}%"></div>
+            <span class="bar-label">${label}</span>
+        </div>`;
+    }).join('');
+
+    const total = valores.reduce((soma, valor) => soma + valor, 0);
+    const diasComRegistro = valores.filter(valor => valor > 0).length;
+    const media = registros.length ? Math.round(total / registros.length) : 0;
+    summary.innerHTML = `<span>Total: <strong>${formatarMl(total)}</strong></span><span>Média/dia: <strong>${formatarMl(media)}</strong></span>`;
+}
+
+function renderizarGraficosHidratacao(dados) {
+    const dias = dados.dias || {};
+    const hoje = obterDataLocal(0);
+    const semana = [];
+    for (let i = -6; i <= 0; i++) {
+        const data = obterDataLocal(i);
+        const valor = data === hoje && dados.ultimaAtualizacao === hoje
+            ? Math.max(Number(dias[data]) || 0, Number(dados.totalHoje) || 0)
+            : Number(dias[data]) || 0;
+        semana.push({ rotulo: new Date(data + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''), valor });
+    }
+    const mes = [];
+    for (let i = -29; i <= 0; i++) {
+        const data = obterDataLocal(i);
+        const valor = data === hoje && dados.ultimaAtualizacao === hoje
+            ? Math.max(Number(dias[data]) || 0, Number(dados.totalHoje) || 0)
+            : Number(dias[data]) || 0;
+        mes.push({ rotulo: i === 0 ? 'Hoje' : (i % 5 === 0 ? data.slice(8, 10) : ''), valor });
+    }
+    renderizarGrafico('weekly-chart', 'weekly-summary', semana);
+    renderizarGrafico('monthly-chart', 'monthly-summary', mes, true);
+}
+
 async function carregarPerfil() {
     const userRef = doc(db, "usuarios", currentUser);
     const userSnap = await getDoc(userRef);
@@ -221,6 +281,8 @@ async function carregarPerfil() {
     
     document.getElementById('progress-fill').style.width = percentage + '%';
     document.getElementById('progress-text').innerText = Math.round(percentage) + '% concluído';
+
+    renderizarGraficosHidratacao(dados);
 
     const historyUl = document.getElementById('water-history');
     historyUl.innerHTML = '';
