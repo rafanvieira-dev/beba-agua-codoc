@@ -159,7 +159,6 @@ footer p { font-size: .82rem !important; }
   nav button::before { font-size: 1.05rem; }
   nav button:hover, nav button:focus-visible { transform: none; background: #e9faff; color: var(--brand-800); }
   nav button:active { box-shadow: none; }
-  nav button:nth-child(4) { display: none; }
   main { width: 100%; margin: 0 auto; padding: 24px 15px 28px; }
   main section:not(.hidden) > h2 { font-size: 1.55rem; }
   .card { padding: 20px 16px; border-radius: 18px; }
