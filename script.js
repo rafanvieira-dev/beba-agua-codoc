@@ -276,11 +276,18 @@ async function carregarPerfil() {
     document.getElementById('user-goal').innerText = dados.goal;
     document.getElementById('user-current').innerText = dados.totalHoje;
 
-    let percentage = (dados.totalHoje / dados.goal) * 100;
-    if (percentage > 100) percentage = 100;
-    
-    document.getElementById('progress-fill').style.width = percentage + '%';
-    document.getElementById('progress-text').innerText = Math.round(percentage) + '% concluído';
+    const metaDiaria = Math.max(0, Number(dados.goal) || 0);
+    const consumoAtual = Math.max(0, Number(dados.totalHoje) || 0);
+    const percentage = metaDiaria > 0
+        ? Math.min((consumoAtual / metaDiaria) * 100, 100)
+        : 0;
+
+    const barra = document.getElementById('progress-fill');
+    barra.style.width = `${percentage}%`;
+    barra.setAttribute('aria-valuenow', String(Math.round(percentage)));
+    barra.setAttribute('aria-valuemax', '100');
+    document.getElementById('progress-text').innerText =
+        `${Math.round(percentage)}% concluído · ${new Intl.NumberFormat('pt-BR').format(consumoAtual)} de ${new Intl.NumberFormat('pt-BR').format(metaDiaria)} ml`;
 
     renderizarGraficosHidratacao(dados);
 

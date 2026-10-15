@@ -104,8 +104,28 @@ button:disabled { opacity: .65; cursor: wait; transform: none; }
 .small-btn { width: auto; min-height: 38px; padding: 8px 14px; margin: 0; border: 1px solid #cdeaf0; background: var(--brand-50); color: var(--brand-800); box-shadow: none; }
 .small-btn:hover { background: #dff7fb; color: var(--brand-900); }
 #user-goal, #user-current, #progress-text { color: var(--brand-800); font-size: 1.08rem; }
-.progress-bar { height: 18px; margin: 2px 0 0; border: 1px solid #d9eaf1; background: #e8f2f7; border-radius: 999px; box-shadow: inset 0 2px 4px rgba(8,47,73,.06); }
-.progress-fill { background: linear-gradient(90deg, #0891b2, #22c55e); border-radius: inherit; box-shadow: 0 0 14px rgba(34,197,94,.24); }
+.progress-bar {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin: 2px 0 0;
+  overflow: hidden;
+  border: 1px solid #c6e2ec;
+  background: #dceaf1;
+  border-radius: 999px;
+  box-shadow: inset 0 2px 5px rgba(8,47,73,.12);
+}
+.progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  min-width: 0;
+  background: linear-gradient(90deg, #0891b2 0%, #06b6d4 48%, #22c55e 100%);
+  border-radius: inherit;
+  box-shadow: 0 0 14px rgba(34,197,94,.30);
+  transition: width .65s cubic-bezier(.22,.61,.36,1);
+}
 #progress-text { margin: 0; font-weight: 800; }
 .water-actions { margin-top: 4px; padding-top: 24px; border-top: 1px solid var(--line); }
 .water-actions h3, .history h3 { color: var(--brand-900); margin-bottom: 8px; }
