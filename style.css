@@ -127,6 +127,8 @@ footer p { font-size: .82rem !important; }
 .bar-value { color: var(--muted); font-size: .68rem; white-space: nowrap; }
 .bar { width: min(100%, 28px); min-height: 3px; border-radius: 7px 7px 2px 2px; background: linear-gradient(180deg, #22c55e 0%, #0891b2 100%); box-shadow: 0 4px 10px rgba(8,145,178,.14); transition: height .35s ease; }
 .bar-label { padding-bottom: 8px; color: var(--muted); font-size: .72rem; }
+.chart-card:has(#monthly-chart) { overflow-x: auto; }
+#monthly-chart { min-width: 660px; grid-template-columns: repeat(30, minmax(18px, 1fr)); }
 .chart-summary { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; color: var(--muted); font-size: .85rem; }
 .chart-summary strong { color: var(--brand-800); }
 @media (min-width: 769px) {
