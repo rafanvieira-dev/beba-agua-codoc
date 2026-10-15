@@ -28,7 +28,7 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.5;
 }
-.app-container { min-height: 100vh; }
+.app-container { display: flex; flex: 1 1 auto; width: 100%; min-width: 0; min-height: 100vh; align-items: stretch; }
 header {
   position: sticky; top: 0; align-self: flex-start;
   width: 270px; min-width: 270px; height: 100vh; min-height: 100vh;
@@ -56,7 +56,7 @@ nav button:hover, nav button:focus-visible {
   background: rgba(255,255,255,.16); color: white; transform: translateX(2px);
   outline: none;
 }
-main { width: min(100%, 1180px); max-width: none; margin: 0 auto; padding: 42px clamp(18px, 4vw, 54px); }
+main { box-sizing: border-box; flex: 1 1 0%; width: auto; min-width: 0; max-width: none; margin: 0; padding: 42px clamp(18px, 4vw, 54px); }
 main section:not(.hidden) > h2 { font-size: clamp(1.55rem, 2.2vw, 2.1rem); letter-spacing: -.04em; color: var(--brand-900); margin-bottom: 6px; }
 .subtitle { color: var(--muted); text-align: left; margin-bottom: 22px; }
 .hidden { display: none !important; }
@@ -132,12 +132,14 @@ footer p { font-size: .82rem !important; }
 .chart-summary { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; color: var(--muted); font-size: .85rem; }
 .chart-summary strong { color: var(--brand-800); }
 @media (min-width: 769px) {
-  main { min-width: 0; }
-  #dashboard-screen, #monthly-ranking-screen { max-width: 900px; }
+  main > section:not(.hidden) { width: 100%; max-width: 1100px; margin-left: auto; margin-right: auto; }
+  #dashboard-screen, #monthly-ranking-screen { max-width: 1100px; }
+  #profile-screen { max-width: 1100px; }
+  #auth-screen { margin-top: 8vh; }
 }
 @media (max-width: 768px) {
   body { padding-bottom: 82px; }
-  .app-container { flex-direction: column; min-height: auto; }
+  .app-container { display: flex; flex-direction: column; min-height: auto; }
   header {
     position: relative; width: 100%; min-width: 0; height: auto; min-height: 0;
     padding: 18px 18px 16px; border-radius: 0 0 22px 22px;
@@ -161,7 +163,8 @@ footer p { font-size: .82rem !important; }
   nav button::before { font-size: 1.05rem; }
   nav button:hover, nav button:focus-visible { transform: none; background: #e9faff; color: var(--brand-800); }
   nav button:active { box-shadow: none; }
-  main { width: 100%; margin: 0 auto; padding: 24px 15px 28px; }
+  main { box-sizing: border-box; flex: 1 1 auto; width: 100%; min-width: 0; margin: 0; padding: 24px 15px 28px; }
+  main > section:not(.hidden) { width: 100%; max-width: none; margin: 0; }
   main section:not(.hidden) > h2 { font-size: 1.55rem; }
   .card { padding: 20px 16px; border-radius: 18px; }
   .ranking-item { padding: 14px; gap: 8px; font-size: .9rem; }
