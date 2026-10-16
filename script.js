@@ -495,3 +495,51 @@ function carregarDashboard() {
         window.renderizarRankingMensal(); 
     });
 }
+
+
+// Instalação como aplicativo (PWA) em dispositivos compatíveis.
+let promptInstalacaoPendente = null;
+const botaoInstalar = document.getElementById('install-app-btn');
+const dispositivoApple = /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+    !('standalone' in navigator && navigator.standalone);
+
+window.addEventListener('beforeinstallprompt', (evento) => {
+    evento.preventDefault();
+    promptInstalacaoPendente = evento;
+    if (botaoInstalar) {
+        botaoInstalar.textContent = 'Instalar aplicativo';
+        botaoInstalar.classList.remove('hidden');
+    }
+});
+
+if (dispositivoApple && botaoInstalar) {
+    botaoInstalar.textContent = 'Como instalar';
+    botaoInstalar.classList.remove('hidden');
+}
+
+if (botaoInstalar) {
+    botaoInstalar.addEventListener('click', async () => {
+        if (promptInstalacaoPendente) {
+            promptInstalacaoPendente.prompt();
+            await promptInstalacaoPendente.userChoice;
+            promptInstalacaoPendente = null;
+            botaoInstalar.classList.add('hidden');
+        } else if (dispositivoApple) {
+            alert('Para instalar no iPhone/iPad:\n1. Abra este site no Safari.\n2. Toque em Compartilhar.\n3. Escolha “Adicionar à Tela de Início”.\n4. Toque em Adicionar.');
+        } else {
+            alert('Para instalar, abra este site no Chrome ou navegador compatível e use o menu do navegador → “Instalar aplicativo” ou “Adicionar à tela inicial”.');
+        }
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    if (botaoInstalar) botaoInstalar.classList.add('hidden');
+    promptInstalacaoPendente = null;
+});
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .catch((erro) => console.error('Não foi possível ativar o modo instalável:', erro));
+    });
+}
