@@ -35,6 +35,27 @@ const getCurrentMonth = () => {
     return today.toISOString().split('-').slice(0, 2).join('-');
 };
 
+// Exibe o nome e a foto da conta Google no menu lateral.
+function atualizarIdentidadeMenu(user, dados = {}) {
+    const container = document.getElementById('sidebar-user');
+    const nome = dados.nome || user?.displayName || user?.email || 'Usuário';
+    const foto = user?.photoURL || dados.foto || '';
+    const img = document.getElementById('sidebar-avatar-image');
+    const inicial = document.getElementById('sidebar-avatar-initial');
+
+    document.getElementById('sidebar-user-name').textContent = nome;
+    inicial.textContent = nome.trim().charAt(0).toUpperCase() || 'U';
+    img.hidden = true;
+    inicial.hidden = false;
+    img.onerror = () => { img.hidden = true; inicial.hidden = false; };
+    img.onload = () => { img.hidden = false; inicial.hidden = true; };
+
+    if (foto.startsWith('https://')) img.src = foto;
+    else img.removeAttribute('src');
+
+    container.classList.remove('hidden');
+}
+
 // Monitorar o estado de autenticação
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -43,6 +64,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (userSnap.exists()) {
             currentUser = user.uid;
+            atualizarIdentidadeMenu(user, userSnap.data());
             document.getElementById('menu').classList.remove('hidden');
             window.showScreen('profile-screen');
         } else {
@@ -53,6 +75,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         currentUser = null;
+        document.getElementById('sidebar-user').classList.add('hidden');
         document.getElementById('menu').classList.add('hidden');
         document.getElementById('login-card').classList.remove('hidden');
         document.getElementById('complete-register-card').classList.add('hidden');
@@ -70,6 +93,7 @@ window.loginComGoogle = async function() {
 
         if (userSnap.exists()) {
             currentUser = user.uid;
+            atualizarIdentidadeMenu(user, userSnap.data());
             document.getElementById('menu').classList.remove('hidden');
             window.showScreen('profile-screen');
         } else {
@@ -110,6 +134,7 @@ window.salvarDadosGoogle = async function() {
     });
 
     currentUser = user.uid;
+    atualizarIdentidadeMenu(user, { nome: user.displayName, foto: user.photoURL });
     document.getElementById('menu').classList.remove('hidden');
     window.showScreen('profile-screen');
 };
