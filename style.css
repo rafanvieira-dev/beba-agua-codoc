@@ -40,7 +40,20 @@ header {
   z-index: 20;
 }
 header h1 { max-width: 220px; font-size: 1.42rem; line-height: 1.25; letter-spacing: -.035em; }
-nav { margin-top: 42px; gap: 10px; }
+.sidebar-user {
+  display: flex; align-items: center; gap: 11px; min-width: 0;
+  margin-top: 28px; padding: 12px; border: 1px solid rgba(255,255,255,.2);
+  border-radius: 15px; background: rgba(255,255,255,.12); color: #fff;
+}
+.sidebar-avatar {
+  display: flex; align-items: center; justify-content: center; flex: 0 0 42px;
+  width: 42px; height: 42px; overflow: hidden; border-radius: 50%;
+  background: #e0f2fe; color: #075985; font-size: 1rem; font-weight: 750;
+  border: 2px solid rgba(255,255,255,.85);
+}
+.sidebar-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.sidebar-user-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .92rem; font-weight: 650; }
+nav { margin-top: 28px; gap: 10px; }
 nav button {
   display: flex; align-items: center; gap: 12px; width: 100%;
   min-height: 48px; margin: 0; padding: 12px 14px;
