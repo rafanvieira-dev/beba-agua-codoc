@@ -273,6 +273,17 @@ async function carregarPerfil() {
     }
 
     document.getElementById('user-greeting').innerText = `Olá, ${dados.nome}!`;
+    const avatarImage = document.getElementById('user-avatar-image');
+    const avatarInitial = document.getElementById('user-avatar-initial');
+    avatarInitial.textContent = String(dados.nome || 'Usuário').trim().charAt(0).toUpperCase() || 'U';
+    avatarImage.hidden = true;
+    avatarInitial.hidden = false;
+    avatarImage.onerror = () => { avatarImage.hidden = true; avatarInitial.hidden = false; };
+    avatarImage.onload = () => { avatarImage.hidden = false; avatarInitial.hidden = true; };
+    const fotoPerfil = auth.currentUser?.photoURL || dados.foto;
+    if (fotoPerfil && fotoPerfil.startsWith('https://')) avatarImage.src = fotoPerfil;
+    else avatarImage.removeAttribute('src');
+
     document.getElementById('user-goal').innerText = dados.goal;
     document.getElementById('user-current').innerText = dados.totalHoje;
 
