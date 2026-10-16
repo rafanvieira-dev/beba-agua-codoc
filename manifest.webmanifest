@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Beba Água CODOC",
+  "short_name": "Beba Água",
+  "description": "Acompanhe seu consumo diário de água e seu progresso de hidratação.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f3f8fc",
+  "theme_color": "#075985",
+  "icons": [
+    {
+      "src": "./img/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
